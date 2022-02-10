@@ -1,13 +1,15 @@
-// ignore_for_file: unused_local_variable
-
 import 'dart:convert';
 import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
-import 'package:tflite/tflite.dart';
+// ignore: import_of_legacy_library_into_null_safe
+import 'package:opencv/core/core.dart';
 
+import 'package:tflite/tflite.dart';
+// ignore: library_prefixes
+import 'package:image/image.dart' as Img;
+// ignore: import_of_legacy_library_into_null_safes
 import 'package:opencv/opencv.dart';
 
 import 'package:flutter/services.dart' show rootBundle;
@@ -49,10 +51,11 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   List _outputs = [];
   ImagePicker picker = ImagePicker();
-  File? a;
+  late File a;
   Image imageNew = Image.asset("assets/images/contour.png");
   Image procImage = Image.asset("assets/images/contour.png");
   bool tf = false;
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -133,7 +136,7 @@ class _MyHomePageState extends State<MyHomePage> {
     final image = await picker.pickImage(source: ImageSource.gallery);
     if (image == null) return null;
     a = File(image.path);
-    Image b = await convertFileToImage(a!);
+    Image b = await convertFileToImage(a);
     setState(() {
       imageNew = b;
       procImage = b;
@@ -144,7 +147,7 @@ class _MyHomePageState extends State<MyHomePage> {
     tf = true;
     final image = await picker.pickImage(source: ImageSource.camera);
     if (image == null) return null;
-    File a = File(image.path);
+    a = File(image.path);
     Image b = await convertFileToImage(a);
     setState(() {
       imageNew = b;
@@ -153,15 +156,16 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void _bottomSheet() async {
-    _sudokuScanner;
+    //await _sudokuScanner();
+    procImage = await splitImage(a);
     showModalBottomSheet(
         context: context,
         builder: (context) {
           return Container(
             color: const Color(0xff757575),
             child: Container(
-              height: 600,
-              child: imageNew,
+              height: 1000,
+              child: procImage,
               decoration: const BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.only(
@@ -197,15 +201,56 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> _sudokuScanner() async {
-    File? file = a;
-    const heightImg = 5;
-    const widthImg = 5;
     tf = true;
-    dynamic img = await ImgProc.resize(await file!.readAsBytes(),
-        [heightImg, widthImg], 0, 0, ImgProc.interArea);
+    // ignore: unused_local_variable
+
+    dynamic img =
+        await ImgProc.pyrMeanShiftFiltering(await a.readAsBytes(), 10, 15);
+
+/*
+    dynamic img = await ImgProc.threshold(
+        await a.readAsBytes(), 80, 255, ImgProc.adaptiveThreshGaussianC);
+    dynamic img = await ImgProc.blur(
+        await a.readAsBytes(), [45, 45], [20, 30], Core.borderReflect);
+    
+    dynamic img = await ImgProc.resize(
+        await a.readAsBytes(), [50, 50], 0, 0, ImgProc.interArea);
+        */
 
     setState(() {
       procImage = Image.memory(img);
     });
+  }
+
+  Future<Image> splitImage(File f) async {
+    List<int> bytes = await f.readAsBytes();
+    // convert image to image from image package
+    Img.Image? image = Img.decodeImage(bytes);
+
+    int x = 0, y = 0;
+    int width = (image!.width / 3).round();
+    int height = (image.height / 3).round();
+
+    // split image to parts
+    // ignore: deprecated_member_use
+    List<Img.Image> parts = <Img.Image>[];
+    for (int i = 0; i < 3; i++) {
+      for (int j = 0; j < 3; j++) {
+        parts.add(Img.copyCrop(image, x, y, width, height));
+        x += width;
+      }
+      x = 0;
+      y += height;
+    }
+
+    // convert image from image package to Image Widget to display
+    List<Image> output = <Image>[];
+    // ignore: deprecated_member_use
+
+    for (Img.Image img in parts) {
+      output.add(Image.memory(Img.encodeJpg(img) as Uint8List));
+    }
+
+    return output[3];
   }
 }

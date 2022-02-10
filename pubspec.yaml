@@ -38,6 +38,7 @@ dependencies:
   image_picker: 
   path_provider:
   opencv: "^1.0.4"
+  image:
   
 
 dev_dependencies:
