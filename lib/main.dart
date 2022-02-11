@@ -49,11 +49,11 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  List _outputs = [];
+  List _gridlst = [];
   ImagePicker picker = ImagePicker();
   late File a;
   Image imageNew = Image.asset("assets/images/contour.png");
-  Image procImage = Image.asset("assets/images/contour.png");
+  //Image procImage = Image.asset("assets/images/contour.png");
   bool tf = false;
 
   @override
@@ -139,7 +139,6 @@ class _MyHomePageState extends State<MyHomePage> {
     Image b = await convertFileToImage(a);
     setState(() {
       imageNew = b;
-      procImage = b;
     });
   }
 
@@ -151,13 +150,12 @@ class _MyHomePageState extends State<MyHomePage> {
     Image b = await convertFileToImage(a);
     setState(() {
       imageNew = b;
-      procImage = b;
     });
   }
 
   void _bottomSheet() async {
     //await _sudokuScanner();
-    procImage = await splitImage(a);
+    _gridlst = await splitImage(a);
     showModalBottomSheet(
         context: context,
         builder: (context) {
@@ -165,7 +163,7 @@ class _MyHomePageState extends State<MyHomePage> {
             color: const Color(0xff757575),
             child: Container(
               height: 1000,
-              child: procImage,
+              child: _gridlst[0],
               decoration: const BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.only(
@@ -176,22 +174,6 @@ class _MyHomePageState extends State<MyHomePage> {
         });
   }
 
-  Future<File?> getImageFileFromAssets(String path) async {
-    final byteData = await rootBundle.load('assets/$path');
-
-    final File? file = File('${(await getTemporaryDirectory()).path}/$path');
-    await file!.writeAsBytes(byteData.buffer
-        .asUint8List(byteData.offsetInBytes, byteData.lengthInBytes));
-
-    return file;
-  }
-
-  @override
-  void dispose() {
-    Tflite.close();
-    super.dispose();
-  }
-
   Future<Image> convertFileToImage(File picture) async {
     List<int> imageBase64 = picture.readAsBytesSync();
     String imageAsString = base64Encode(imageBase64);
@@ -200,19 +182,20 @@ class _MyHomePageState extends State<MyHomePage> {
     return image;
   }
 
+/*
   Future<void> _sudokuScanner() async {
     tf = true;
     // ignore: unused_local_variable
 
-    dynamic img =
-        await ImgProc.pyrMeanShiftFiltering(await a.readAsBytes(), 10, 15);
-
-/*
     dynamic img = await ImgProc.threshold(
         await a.readAsBytes(), 80, 255, ImgProc.adaptiveThreshGaussianC);
+
+/*
+    
     dynamic img = await ImgProc.blur(
         await a.readAsBytes(), [45, 45], [20, 30], Core.borderReflect);
-    
+    dynamic img =
+        await ImgProc.pyrMeanShiftFiltering(await a.readAsBytes(), 10, 15);
     dynamic img = await ImgProc.resize(
         await a.readAsBytes(), [50, 50], 0, 0, ImgProc.interArea);
         */
@@ -221,21 +204,21 @@ class _MyHomePageState extends State<MyHomePage> {
       procImage = Image.memory(img);
     });
   }
-
-  Future<Image> splitImage(File f) async {
+*/
+  Future<List<Image>> splitImage(File f) async {
     List<int> bytes = await f.readAsBytes();
     // convert image to image from image package
     Img.Image? image = Img.decodeImage(bytes);
 
     int x = 0, y = 0;
-    int width = (image!.width / 3).round();
-    int height = (image.height / 3).round();
+    int width = (image!.width / 9).round();
+    int height = (image.height / 9).round();
 
     // split image to parts
     // ignore: deprecated_member_use
     List<Img.Image> parts = <Img.Image>[];
-    for (int i = 0; i < 3; i++) {
-      for (int j = 0; j < 3; j++) {
+    for (int i = 0; i < 9; i++) {
+      for (int j = 0; j < 9; j++) {
         parts.add(Img.copyCrop(image, x, y, width, height));
         x += width;
       }
@@ -251,6 +234,12 @@ class _MyHomePageState extends State<MyHomePage> {
       output.add(Image.memory(Img.encodeJpg(img) as Uint8List));
     }
 
-    return output[3];
+    return output;
+  }
+
+  @override
+  void dispose() {
+    Tflite.close();
+    super.dispose();
   }
 }
