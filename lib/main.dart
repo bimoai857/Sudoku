@@ -49,12 +49,23 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  List _gridlst = [];
+  var _outputs = [];
   ImagePicker picker = ImagePicker();
   late File a;
+  List<File> b = [];
   Image imageNew = Image.asset("assets/images/contour.png");
-  //Image procImage = Image.asset("assets/images/contour.png");
+  Image procImage = Image.asset("assets/images/contour.png");
   bool tf = false;
+
+  @override
+  void initState() {
+    super.initState();
+
+    loadModel().then((value) {
+      setState(() {});
+      print(value);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -65,7 +76,7 @@ class _MyHomePageState extends State<MyHomePage> {
             "Sudoku",
             style: TextStyle(fontWeight: FontWeight.normal),
           ),
-          backgroundColor: Color.fromRGBO(66, 28, 82, 1),
+          backgroundColor: const Color.fromRGBO(66, 28, 82, 1),
           centerTitle: true,
         ),
         body: Card(
@@ -83,10 +94,11 @@ class _MyHomePageState extends State<MyHomePage> {
                         width: 300,
                         decoration: BoxDecoration(
                           border: Border.all(
-                              color: Color.fromRGBO(66, 28, 82, 1), width: 2),
+                              color: const Color.fromRGBO(66, 28, 82, 1),
+                              width: 2),
                         ),
                       ))
-                    : Container(height: 420, width: 300, child: imageNew),
+                    : SizedBox(height: 420, width: 300, child: imageNew),
                 Container(
                   height: 70,
                   margin: const EdgeInsets.fromLTRB(0, 10, 0, 0),
@@ -155,7 +167,9 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void _bottomSheet() async {
     //await _sudokuScanner();
-    _gridlst = await splitImage(a);
+    await splitImage(a);
+
+    await classifyImage(b[1]);
     showModalBottomSheet(
         context: context,
         builder: (context) {
@@ -163,7 +177,7 @@ class _MyHomePageState extends State<MyHomePage> {
             color: const Color(0xff757575),
             child: Container(
               height: 1000,
-              child: _gridlst[0],
+              child: Image.file(b[1]),
               decoration: const BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.only(
@@ -182,30 +196,31 @@ class _MyHomePageState extends State<MyHomePage> {
     return image;
   }
 
-/*
   Future<void> _sudokuScanner() async {
     tf = true;
     // ignore: unused_local_variable
+/*
 
     dynamic img = await ImgProc.threshold(
         await a.readAsBytes(), 80, 255, ImgProc.adaptiveThreshGaussianC);
 
-/*
+    dynamic img2 = await ImgProc.threshold(
+        await img1, 80, 255, ImgProc.adaptiveThreshGaussianC);
     
     dynamic img = await ImgProc.blur(
         await a.readAsBytes(), [45, 45], [20, 30], Core.borderReflect);
     dynamic img =
         await ImgProc.pyrMeanShiftFiltering(await a.readAsBytes(), 10, 15);
-    dynamic img = await ImgProc.resize(
-        await a.readAsBytes(), [50, 50], 0, 0, ImgProc.interArea);
         */
+    dynamic img1 = await ImgProc.resize(
+        await a.readAsBytes(), [28, 28], 0, 0, ImgProc.interArea);
 
     setState(() {
-      procImage = Image.memory(img);
+      procImage = Image.memory(img1);
     });
   }
-*/
-  Future<List<Image>> splitImage(File f) async {
+
+  Future splitImage(File f) async {
     List<int> bytes = await f.readAsBytes();
     // convert image to image from image package
     Img.Image? image = Img.decodeImage(bytes);
@@ -219,22 +234,40 @@ class _MyHomePageState extends State<MyHomePage> {
     List<Img.Image> parts = <Img.Image>[];
     for (int i = 0; i < 9; i++) {
       for (int j = 0; j < 9; j++) {
-        parts.add(Img.copyCrop(image, x, y, width, height));
+        parts.add(Img.copyResize(Img.copyCrop(image, x, y, width, height),
+            height: 28, width: 28));
         x += width;
       }
       x = 0;
       y += height;
     }
 
-    // convert image from image package to Image Widget to display
-    List<Image> output = <Image>[];
-    // ignore: deprecated_member_use
-
-    for (Img.Image img in parts) {
-      output.add(Image.memory(Img.encodeJpg(img) as Uint8List));
+    final tempDir = await getTemporaryDirectory();
+    File c;
+    for (int i = 0; i < 81; i++) {
+      c = await File('${tempDir.path}/image$i.jpg').create();
+      await c.writeAsBytes(Img.encodeJpg(parts[i]));
+      b.add(c);
     }
+  }
 
-    return output;
+  classifyImage(File image) async {
+    var output = await Tflite.runModelOnImage(
+      path: image.path,
+      numResults: 1,
+      threshold: 0.0,
+      imageMean: 127.5,
+      imageStd: 127.5,
+    );
+    print(output);
+    setState(() {
+      _outputs = output!;
+    });
+  }
+
+  loadModel() async {
+    await Tflite.loadModel(
+        model: "assets/model.tflite", labels: "assets/labels.txt");
   }
 
   @override
