@@ -4,15 +4,13 @@ import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 // ignore: import_of_legacy_library_into_null_safe
-import 'package:opencv/core/core.dart';
 
 import 'package:tflite/tflite.dart';
 // ignore: library_prefixes
 import 'package:image/image.dart' as Img;
-// ignore: import_of_legacy_library_into_null_safes
+// ignore: import_of_legacy_library_into_null_safes, import_of_legacy_library_into_null_safe
 import 'package:opencv/opencv.dart';
 
-import 'package:flutter/services.dart' show rootBundle;
 import 'package:path_provider/path_provider.dart';
 
 void main() {
