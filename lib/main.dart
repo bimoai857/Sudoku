@@ -13,6 +13,8 @@ import 'package:opencv/opencv.dart';
 
 import 'package:path_provider/path_provider.dart';
 
+import 'package:sudoku/models/tflite_model.dart';
+
 void main() {
   runApp(const MyApp());
 }
@@ -167,7 +169,10 @@ class _MyHomePageState extends State<MyHomePage> {
     //await _sudokuScanner();
     await splitImage(a);
 
-    await classifyImage(b[1]);
+    _outputs = await classifyImage(b[1]);
+    // setState(() {
+    //   _outputs = ou
+    // });
     showModalBottomSheet(
         context: context,
         builder: (context) {
@@ -249,24 +254,24 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
-  classifyImage(File image) async {
-    var output = await Tflite.runModelOnImage(
-      path: image.path,
-      numResults: 1,
-      threshold: 0.0,
-      imageMean: 127.5,
-      imageStd: 127.5,
-    );
-    print(output);
-    setState(() {
-      _outputs = output!;
-    });
-  }
+  // classifyImage(File image) async {
+  //   var output = await Tflite.runModelOnImage(
+  //     path: image.path,
+  //     numResults: 1,
+  //     threshold: 0.0,
+  //     imageMean: 127.5,
+  //     imageStd: 127.5,
+  //   );
+  //   print(output);
+  //   setState(() {
+  //     _outputs = output!;
+  //   });
+  // }
 
-  loadModel() async {
-    await Tflite.loadModel(
-        model: "assets/model.tflite", labels: "assets/labels.txt");
-  }
+  // loadModel() async {
+  //   await Tflite.loadModel(
+  //       model: "assets/model.tflite", labels: "assets/labels.txt");
+  // }
 
   @override
   void dispose() {
