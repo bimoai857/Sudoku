@@ -55,6 +55,7 @@ class _MyHomePageState extends State<MyHomePage> {
   late File a;
   List<File> b = [];
   // Image imageNew = Image.asset("assets/images/contour.png");
+  late File imageNew;
   Image procImage = Image.asset("assets/images/contour.png");
   bool imageStatus = false;
 
@@ -109,13 +110,15 @@ class _MyHomePageState extends State<MyHomePage> {
                     child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const IconButton(
-                            icon: Icon(
+                          IconButton(
+                            icon: const Icon(
                               Icons.camera,
                               size: 40,
                             ),
-                            onPressed: fromCamera,
-                            color: Color.fromRGBO(66, 28, 82, 1),
+                            onPressed: () => setState(() {
+                              imageNew = fromCamera();
+                            }),
+                            color: const Color.fromRGBO(66, 28, 82, 1),
                           ),
                           IconButton(
                             icon: const Icon(
@@ -126,13 +129,15 @@ class _MyHomePageState extends State<MyHomePage> {
                             onPressed: _bottomSheet,
                             color: const Color.fromRGBO(66, 28, 82, 1),
                           ),
-                          const IconButton(
-                            icon: Icon(
+                          IconButton(
+                            icon: const Icon(
                               Icons.collections,
                               size: 40,
                             ),
-                            onPressed: fromGallery,
-                            color: Color.fromRGBO(66, 28, 82, 1),
+                            onPressed: () => setState(() {
+                              imageNew = fromGallery();
+                            }),
+                            color: const Color.fromRGBO(66, 28, 82, 1),
                           ),
                         ]),
                   ),
