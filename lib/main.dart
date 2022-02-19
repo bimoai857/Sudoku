@@ -103,9 +103,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         ),
                       ))
                     : SizedBox(
-                        height: 420,
-                        width: 300,
-                        child: Image.file(Data.imageNew)),
+                        height: 420, width: 300, child: Data.convertedImage),
                 Container(
                   height: 70,
                   margin: const EdgeInsets.fromLTRB(0, 10, 0, 0),
@@ -195,13 +193,13 @@ class _MyHomePageState extends State<MyHomePage> {
         });
   }
 
-  Future<Image> convertFileToImage(File picture) async {
-    List<int> imageBase64 = picture.readAsBytesSync();
-    String imageAsString = base64Encode(imageBase64);
-    Uint8List uint8list = base64.decode(imageAsString);
-    Image image = Image.memory(uint8list);
-    return image;
-  }
+  // Future<Image> convertFileToImage(File picture) async {
+  //   List<int> imageBase64 = picture.readAsBytesSync();
+  //   String imageAsString = base64Encode(imageBase64);
+  //   Uint8List uint8list = base64.decode(imageAsString);
+  //   Image image = Image.memory(uint8list);
+  //   return image;
+  // }
 
   Future<void> _sudokuScanner() async {
     Data.imageStatus = true;
