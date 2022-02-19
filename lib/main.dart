@@ -58,11 +58,12 @@ class _MyHomePageState extends State<MyHomePage> {
   // Image imageNew = Image.asset("assets/images/contour.png");
   // late File imageNew;
   Image procImage = Image.asset("assets/images/contour.png");
-  bool imageStatus = false;
+  // bool imageStatus = false;
 
   @override
   void initState() {
     super.initState();
+    // print('${Data.imageNew}');
 
     loadModel().then((value) {
       setState(() {});
@@ -91,7 +92,7 @@ class _MyHomePageState extends State<MyHomePage> {
             margin: const EdgeInsets.all(8),
             child: Column(
               children: [
-                imageStatus == false
+                Data.imageStatus == false
                     ? (Container(
                         height: 420,
                         width: 300,
@@ -113,13 +114,13 @@ class _MyHomePageState extends State<MyHomePage> {
                     child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          IconButton(
-                            icon: const Icon(
+                          const IconButton(
+                            icon: Icon(
                               Icons.camera,
                               size: 40,
                             ),
-                            onPressed: () => fromCamera(),
-                            color: const Color.fromRGBO(66, 28, 82, 1),
+                            onPressed: fromCamera,
+                            color: Color.fromRGBO(66, 28, 82, 1),
                           ),
                           IconButton(
                             icon: const Icon(
@@ -203,7 +204,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> _sudokuScanner() async {
-    imageStatus = true;
+    Data.imageStatus = true;
     // ignore: unused_local_variable
 /*
 
@@ -263,3 +264,8 @@ class _MyHomePageState extends State<MyHomePage> {
     super.dispose();
   }
 }
+
+// test() {
+//   fromCamera();
+//   print('Main = ${Data.imageNew}');
+// }

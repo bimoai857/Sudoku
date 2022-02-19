@@ -1,5 +1,6 @@
 import 'dart:io';
 
 class Data {
-  static late File imageNew;
+  static File imageNew = File('assets/images/rohan.jpg');
+  static bool imageStatus = false;
 }
