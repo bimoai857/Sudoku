@@ -15,6 +15,7 @@ import 'package:path_provider/path_provider.dart';
 
 import 'package:sudoku/models/tflite_model.dart';
 import 'package:sudoku/utils/image_picker.dart';
+import 'package:sudoku/constants/constants.dart';
 
 void main() {
   runApp(const MyApp());
@@ -55,7 +56,7 @@ class _MyHomePageState extends State<MyHomePage> {
   late File a;
   List<File> b = [];
   // Image imageNew = Image.asset("assets/images/contour.png");
-  late File imageNew;
+  // late File imageNew;
   Image procImage = Image.asset("assets/images/contour.png");
   bool imageStatus = false;
 
@@ -101,7 +102,9 @@ class _MyHomePageState extends State<MyHomePage> {
                         ),
                       ))
                     : SizedBox(
-                        height: 420, width: 300, child: Image.file(imageNew)),
+                        height: 420,
+                        width: 300,
+                        child: Image.file(Data.imageNew)),
                 Container(
                   height: 70,
                   margin: const EdgeInsets.fromLTRB(0, 10, 0, 0),
@@ -115,9 +118,7 @@ class _MyHomePageState extends State<MyHomePage> {
                               Icons.camera,
                               size: 40,
                             ),
-                            onPressed: () => setState(() {
-                              imageNew = fromCamera();
-                            }),
+                            onPressed: () => fromCamera(),
                             color: const Color.fromRGBO(66, 28, 82, 1),
                           ),
                           IconButton(
@@ -129,15 +130,13 @@ class _MyHomePageState extends State<MyHomePage> {
                             onPressed: _bottomSheet,
                             color: const Color.fromRGBO(66, 28, 82, 1),
                           ),
-                          IconButton(
-                            icon: const Icon(
+                          const IconButton(
+                            icon: Icon(
                               Icons.collections,
                               size: 40,
                             ),
-                            onPressed: () => setState(() {
-                              imageNew = fromGallery();
-                            }),
-                            color: const Color.fromRGBO(66, 28, 82, 1),
+                            onPressed: fromGallery,
+                            color: Color.fromRGBO(66, 28, 82, 1),
                           ),
                         ]),
                   ),
