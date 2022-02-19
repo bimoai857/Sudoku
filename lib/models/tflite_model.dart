@@ -14,9 +14,6 @@ classifyImage(File image) async {
     imageMean: 127.5,
     imageStd: 127.5,
   );
-  // print(output);
-  // setState(() {
-  //   _outputs = output!;
-  // });
+  print(output);
   return output;
 }

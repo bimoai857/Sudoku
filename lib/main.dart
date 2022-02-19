@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'dart:io';
-import 'package:image_picker/image_picker.dart';
+// import 'package:image_picker/image_picker.dart';
 // ignore: import_of_legacy_library_into_null_safe
 
 import 'package:tflite/tflite.dart';
@@ -14,6 +14,7 @@ import 'package:opencv/opencv.dart';
 import 'package:path_provider/path_provider.dart';
 
 import 'package:sudoku/models/tflite_model.dart';
+import 'package:sudoku/utils/image_picker.dart';
 
 void main() {
   runApp(const MyApp());
@@ -50,12 +51,12 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   var _outputs = [];
-  ImagePicker picker = ImagePicker();
+  // ImagePicker picker = ImagePicker();
   late File a;
   List<File> b = [];
-  Image imageNew = Image.asset("assets/images/contour.png");
+  // Image imageNew = Image.asset("assets/images/contour.png");
   Image procImage = Image.asset("assets/images/contour.png");
-  bool tf = false;
+  bool imageStatus = false;
 
   @override
   void initState() {
@@ -88,7 +89,7 @@ class _MyHomePageState extends State<MyHomePage> {
             margin: const EdgeInsets.all(8),
             child: Column(
               children: [
-                tf == false
+                imageStatus == false
                     ? (Container(
                         height: 420,
                         width: 300,
@@ -98,7 +99,8 @@ class _MyHomePageState extends State<MyHomePage> {
                               width: 2),
                         ),
                       ))
-                    : SizedBox(height: 420, width: 300, child: imageNew),
+                    : SizedBox(
+                        height: 420, width: 300, child: Image.file(imageNew)),
                 Container(
                   height: 70,
                   margin: const EdgeInsets.fromLTRB(0, 10, 0, 0),
@@ -107,13 +109,13 @@ class _MyHomePageState extends State<MyHomePage> {
                     child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          IconButton(
-                            icon: const Icon(
+                          const IconButton(
+                            icon: Icon(
                               Icons.camera,
                               size: 40,
                             ),
                             onPressed: fromCamera,
-                            color: const Color.fromRGBO(66, 28, 82, 1),
+                            color: Color.fromRGBO(66, 28, 82, 1),
                           ),
                           IconButton(
                             icon: const Icon(
@@ -124,13 +126,13 @@ class _MyHomePageState extends State<MyHomePage> {
                             onPressed: _bottomSheet,
                             color: const Color.fromRGBO(66, 28, 82, 1),
                           ),
-                          IconButton(
-                            icon: const Icon(
+                          const IconButton(
+                            icon: Icon(
                               Icons.collections,
                               size: 40,
                             ),
                             onPressed: fromGallery,
-                            color: const Color.fromRGBO(66, 28, 82, 1),
+                            color: Color.fromRGBO(66, 28, 82, 1),
                           ),
                         ]),
                   ),
@@ -143,36 +145,33 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  void fromGallery() async {
-    tf = true;
-    final image = await picker.pickImage(source: ImageSource.gallery);
-    if (image == null) return null;
-    a = File(image.path);
-    Image b = await convertFileToImage(a);
-    setState(() {
-      imageNew = b;
-    });
-  }
+  // void fromGallery() async {
+  //   tf = true;
+  //   final image = await picker.pickImage(source: ImageSource.gallery);
+  //   if (image == null) return null;
+  //   a = File(image.path);
+  //   Image b = await convertFileToImage(a);
+  //   setState(() {
+  //     imageNew = b;
+  //   });
+  // }
 
-  void fromCamera() async {
-    tf = true;
-    final image = await picker.pickImage(source: ImageSource.camera);
-    if (image == null) return null;
-    a = File(image.path);
-    Image b = await convertFileToImage(a);
-    setState(() {
-      imageNew = b;
-    });
-  }
+  // void fromCamera() async {
+  //   tf = true;
+  //   final image = await picker.pickImage(source: ImageSource.camera);
+  //   if (image == null) return null;
+  //   a = File(image.path);
+  //   Image b = await convertFileToImage(a);
+  //   setState(() {
+  //     imageNew = b;
+  //   });
+  // }
 
   void _bottomSheet() async {
     //await _sudokuScanner();
     await splitImage(a);
 
     _outputs = await classifyImage(b[1]);
-    // setState(() {
-    //   _outputs = ou
-    // });
     showModalBottomSheet(
         context: context,
         builder: (context) {
@@ -200,7 +199,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> _sudokuScanner() async {
-    tf = true;
+    imageStatus = true;
     // ignore: unused_local_variable
 /*
 
@@ -253,25 +252,6 @@ class _MyHomePageState extends State<MyHomePage> {
       b.add(c);
     }
   }
-
-  // classifyImage(File image) async {
-  //   var output = await Tflite.runModelOnImage(
-  //     path: image.path,
-  //     numResults: 1,
-  //     threshold: 0.0,
-  //     imageMean: 127.5,
-  //     imageStd: 127.5,
-  //   );
-  //   print(output);
-  //   setState(() {
-  //     _outputs = output!;
-  //   });
-  // }
-
-  // loadModel() async {
-  //   await Tflite.loadModel(
-  //       model: "assets/model.tflite", labels: "assets/labels.txt");
-  // }
 
   @override
   void dispose() {
